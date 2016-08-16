@@ -106,6 +106,16 @@ public class UserData {
         return query;
     }
 
+    public string query_get_day_contenido(string actFecha)
+    {
+        string query = "SELECT id, titulo, contenido_tipo, contenido, imagen FROM contenidos " +
+            " WHERE id NOT IN (SELECT contenidos_id FROM contenidos_usuarios WHERE usuarios_id = '20' )" +
+            " AND DATE(fecha_inicio) = DATE('" + actFecha + "')" +
+            " ORDER BY fecha_inicio ASC LIMIT 1";
+
+        return query;
+    }
+
     public string query_get_rand_contenido(string actFecha)
     {
         string query = "select id, titulo, contenido_tipo, contenido, imagen from contenidos  "+
@@ -116,12 +126,13 @@ public class UserData {
         return query;
     }
 
-    public string query_get_rand_contenido_old(string actFecha)
+    public string query_get_contenido_old(string actFecha)
     {
-        string query = "select id, titulo, contenido_tipo, contenido, imagen from contenidos  " +
-            " where id NOT IN ( select contenidos_id from contenidos_usuarios where usuarios_id = '" + id + "' ) " +
-            " and ( ( tipo_vencimiento = 'fecha' and '" + actFecha + "' < fecha_inicio ) or tipo_vencimiento = 'tiempo' ) " +
-            " ORDER BY RANDOM() LIMIT 1 ";
+        string query = "SELECT id, titulo, contenido_tipo, contenido, imagen FROM contenidos" +
+            " WHERE id NOT IN (SELECT contenidos_id FROM contenidos_usuarios WHERE usuarios_id = '20' )" +
+            " AND fecha_inicio < '" + actFecha + "'" +
+            " AND (fecha_fin > '" + actFecha + "' OR tipo_vencimiento = 'tiempo')" +
+            " ORDER BY fecha_inicio ASC LIMIT 1";
 
         return query;
     }

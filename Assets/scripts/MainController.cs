@@ -60,7 +60,9 @@ public class MainController : MonoBehaviour {
     public GameObject Downloading;
 
 	void OnGUI(){
-		if (isDebug) {
+        Screen.fullScreen = false;
+
+        if (isDebug) {
 			GUI.skin.label.fontSize = 20;
 			GUI.Label (new Rect (0, Screen.height * 0.775f, Screen.width, Screen.height * 0.05f), "DEBUG : " + sendDataDebug);
 		}

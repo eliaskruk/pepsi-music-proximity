@@ -73,105 +73,76 @@ public class home : MonoBehaviour {
     
 
     private void getRandContent(string codigo_id) {
-        //string codigo_id = ((string[])resultC[0])[0];
+        ArrayList resContenido;
+
         string fecha_entrada = GMS.getActualDate();
 
         //verificar si tengo el primero contenido y cargarlo
         GMS.db.OpenDB(GMS.dbName);
-        ArrayList result = GMS.db.BasicQueryArray("select contenidos_id from contenidos_usuarios where usuarios_id = '" + GMS.userData.id + "' and contenidos_id = '1' ");
+        ArrayList result = GMS.db.BasicQueryArray("SELECT contenidos_id FROM contenidos_usuarios WHERE usuarios_id = '" + GMS.userData.id + "' AND contenidos_id = '1' ");
         GMS.db.CloseDB();
 
         if (result.Count == 0)
         {
-            //cargar contenido usuario
-            string newId = GMS.getNewId("contenidos_usuarios");
-            string[] cols = new string[] { "id", "usuarios_id", "codigos_id", "contenidos_id", "fecha_entrada" };
-            string[] colsVals = new string[] { newId, GMS.userData.id.ToString(), codigo_id, "1", fecha_entrada };
-
+            //Obtengo el primer contenido
             GMS.db.OpenDB(GMS.dbName);
-            GMS.db.InsertIntoSpecific("contenidos_usuarios", cols, colsVals);
+            resContenido = GMS.db.BasicQueryArray("SELECT * FROM contenidos WHERE id = 1");
             GMS.db.CloseDB();
-
-            PlayerPrefs.SetString("contenidos_id", "1");
-            ContenidoDesbloqueado.SetActive(true);
-            StartCoroutine(GMS.redirect("content", 4f));
-
-            //insertar para sync
-            string[] fields = { "usuarios_id", "contenidos_id", "fecha_entrada", "codigos_id", "actLat", "actLng" };
-            string[] values = { GMS.userData.id.ToString(), "1", fecha_entrada, codigo_id, GMS.userLat, GMS.userLng };
-            GMS.insert_sync(fields, values, "codigos_usuarios");
+            this.guardarContenidoDesbloq(resContenido, codigo_id, fecha_entrada);
         }
-        else {
-
-            //obtener contenido al azar
+        else
+        {
+            //Obtener el contenido del dia si no lo tiene
             GMS.db.OpenDB(GMS.dbName);
-            string randContentQ = GMS.userData.query_get_rand_contenido(fecha_entrada);
-            Debug.Log(randContentQ);
-            ArrayList result2 = GMS.db.BasicQueryArray(randContentQ); //id, titulo, contenido_tipo, contenido, imagen
+            string queryAux = GMS.userData.query_get_day_contenido(fecha_entrada);
+            Debug.Log(queryAux);
+            resContenido = GMS.db.BasicQueryArray(queryAux);
             GMS.db.CloseDB();
 
-            bool hasContent = false;
-            if (result2.Count > 0)
+            if (resContenido.Count > 0)
             {
-                hasContent = true;
+                this.guardarContenidoDesbloq(resContenido, codigo_id, fecha_entrada);
             }
-            else {
-                //buscar contenidos mas viejos
+            else
+            {
 
+                //Obtener contenido mas antiguo
                 GMS.db.OpenDB(GMS.dbName);
-                randContentQ = GMS.userData.query_get_rand_contenido_old(fecha_entrada);
+                string randContentQ = GMS.userData.query_get_contenido_old(fecha_entrada);
                 Debug.Log(randContentQ);
-                result2 = GMS.db.BasicQueryArray(randContentQ); //id, titulo, contenido_tipo, contenido, imagen
-                GMS.db.CloseDB();
-                if (result2.Count > 0)
-                {
-                    hasContent = true;
-                }
-
-            }
-
-            if (hasContent)
-            {
-                //cargar contenido usuario
-                string newId = GMS.getNewId("contenidos_usuarios");
-                string[] cols = new string[] { "id", "usuarios_id", "codigos_id", "contenidos_id", "fecha_entrada" };
-                string[] colsVals = new string[] { newId, GMS.userData.id.ToString(), codigo_id, ((string[])result2[0])[0], fecha_entrada };
-
-                GMS.db.OpenDB(GMS.dbName);
-                GMS.db.InsertIntoSpecific("contenidos_usuarios", cols, colsVals);
+                resContenido = GMS.db.BasicQueryArray(randContentQ); //id, titulo, contenido_tipo, contenido, imagen
                 GMS.db.CloseDB();
 
-                //insertar para sync
-                string[] fields = { "usuarios_id", "contenidos_id", "fecha_entrada", "codigos_id", "actLat", "actLng" };
-                string[] values = { GMS.userData.id.ToString(), ((string[])result2[0])[0], fecha_entrada, codigo_id, GMS.userLat, GMS.userLng };
-                GMS.insert_sync(fields, values, "codigos_usuarios");
-
-                //checkear si se descargo el contenido..
-                /*if (((string[])result2[0])[2] != "texto")
+                if (resContenido.Count > 0)
                 {
-                    if (!GMS.checkFileExist(((string[])result2[0])[3]))
-                    {
-                        Downloading.SetActive(true);
-                        GMS.downloadFile(((string[])result2[0])[3]);
-                    }
+                    this.guardarContenidoDesbloq(resContenido, codigo_id, fecha_entrada);
                 }
-
-                if (((string[])result2[0])[4] != "" && ((string[])result2[0])[4] != "null")
+                else
                 {
-                    if (!GMS.checkFileExist(((string[])result2[0])[4]))
-                    {
-                        Downloading.SetActive(true);
-                        GMS.downloadFile(((string[])result2[0])[4]);
-                    }
-                }*/
-                PlayerPrefs.SetString("contenidos_id", ((string[])result2[0])[0]);
-                ContenidoDesbloqueado.SetActive(true);
-                StartCoroutine(GMS.redirect("content", 4f));
-            }
-            else {
-                GMS.errorPopup("Ya no hay mas contenidos..");
+                    GMS.errorPopup("Ya no hay mas contenidos..");
+                }
             }
         }
+    }
+
+    public void guardarContenidoDesbloq(ArrayList result, string codigo_id, string fecha_entrada) {
+        //cargar contenido usuario
+        string newId = GMS.getNewId("contenidos_usuarios");
+        string[] cols = new string[] { "id", "usuarios_id", "codigos_id", "contenidos_id", "fecha_entrada" };
+        string[] colsVals = new string[] { newId, GMS.userData.id.ToString(), codigo_id, ((string[])result[0])[0], fecha_entrada };
+
+        GMS.db.OpenDB(GMS.dbName);
+        GMS.db.InsertIntoSpecific("contenidos_usuarios", cols, colsVals);
+        GMS.db.CloseDB();
+
+        //insertar para sync
+        string[] fields = { "usuarios_id", "contenidos_id", "fecha_entrada", "codigos_id", "actLat", "actLng" };
+        string[] values = { GMS.userData.id.ToString(), ((string[])result[0])[0], fecha_entrada, codigo_id, GMS.userLat, GMS.userLng };
+        GMS.insert_sync(fields, values, "codigos_usuarios");
+
+        PlayerPrefs.SetString("contenidos_id", ((string[])result[0])[0]);
+        ContenidoDesbloqueado.SetActive(true);
+        StartCoroutine(GMS.redirect("content", 4f));
     }
 
     private void submitNFC(string codigos_id) {
@@ -181,7 +152,7 @@ public class home : MonoBehaviour {
     void OnGUI()
     {
         GUI.skin.label.fontSize = 32;
-        GUI.Label(new Rect(0, Screen.height * 0.5f, Screen.width, 40), "NFC mgs: " + nfc_text);
+        //GUI.Label(new Rect(0, Screen.height * 0.5f, Screen.width, 40), "NFC mgs: " + nfc_text);
     }
 
     //NFC

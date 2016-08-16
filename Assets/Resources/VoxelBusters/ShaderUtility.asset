@@ -1744,10 +1744,56 @@ MonoBehaviour:
     m_propertyList:
     - m_name: _MainTex
       m_type: 4
+  - m_name: Blur Behind/UI
+    m_propertyList:
+    - m_name: _MainTex
+      m_type: 4
+    - m_name: _Color
+      m_type: 0
+    - m_name: _StencilComp
+      m_type: 2
+    - m_name: _Stencil
+      m_type: 2
+    - m_name: _StencilOp
+      m_type: 2
+    - m_name: _StencilWriteMask
+      m_type: 2
+    - m_name: _StencilReadMask
+      m_type: 2
+    - m_name: _ColorMask
+      m_type: 2
+    - m_name: _UseUIAlphaClip
+      m_type: 2
   - m_name: Chromakey/Mask
     m_propertyList:
     - m_name: _MainTex
       m_type: 4
+  - m_name: UI/Procedural UI Image
+    m_propertyList:
+    - m_name: _MainTex
+      m_type: 4
+    - m_name: _Width
+      m_type: 2
+    - m_name: _Height
+      m_type: 2
+    - m_name: _Radius
+      m_type: 1
+    - m_name: _LineWeight
+      m_type: 2
+    - m_name: _PixelWorldScale
+      m_type: 2
+    - m_name: _StencilComp
+      m_type: 2
+    - m_name: _Stencil
+      m_type: 2
+    - m_name: _StencilOp
+      m_type: 2
+    - m_name: _StencilWriteMask
+      m_type: 2
+    - m_name: _StencilReadMask
+      m_type: 2
+    - m_name: _ColorMask
+      m_type: 2
   - m_name: Unlit/ChromaKey2
     m_propertyList:
     - m_name: _MainTex
@@ -1758,3 +1804,9 @@ MonoBehaviour:
       m_type: 3
     - m_name: _keyingColor
       m_type: 0
+  - m_name: Hidden/Blur Behind/Blur
+    m_propertyList:
+    - m_name: _MainTex
+      m_type: 4
+    - m_name: _Parameter
+      m_type: 1
